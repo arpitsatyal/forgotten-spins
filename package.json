@@ -1,0 +1,22 @@
+{
+    "name": "forgotten-spins",
+    "version": "1.0.0",
+    "description": "Last.fm analyzer to find forgotten albums",
+    "main": "dist/index.js",
+    "scripts": {
+        "start": "ts-node src/index.ts",
+        "build": "tsc"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/axios": "^0.9.36",
+        "@types/node": "^25.0.8",
+        "axios": "^1.13.2",
+        "date-fns": "^4.1.0",
+        "dotenv": "^17.2.3",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
+    }
+}
