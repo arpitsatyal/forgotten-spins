@@ -1,5 +1,5 @@
-# Use Node.js LTS (Long Term Support)
-FROM node:18-slim
+# Use Node.js LTS (Full version to avoid DNS/Network issues on HF)
+FROM node:18
 
 # Create app directory
 WORKDIR /usr/src/app
