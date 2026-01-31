@@ -86,4 +86,26 @@ export class LastFmClient {
             return null;
         }
     }
+    async getAlbumTags(artist: string, album: string): Promise<string[]> {
+        try {
+            const response = await this.fetch<any>('album.getinfo', {
+                artist,
+                album,
+            });
+
+            const tags = response.album?.tags?.tag;
+            if (!tags) return [];
+
+            if (Array.isArray(tags)) {
+                return tags.map((t: any) => t.name.toLowerCase());
+            } else if (tags.name) {
+                return [tags.name.toLowerCase()];
+            }
+
+            return [];
+        } catch (error) {
+            console.warn(`Failed to fetch tags for ${artist} - ${album}:`, error);
+            return [];
+        }
+    }
 }

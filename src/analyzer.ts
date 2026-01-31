@@ -3,9 +3,14 @@ import { NormalizedAlbum } from './types';
 
 export class Analyzer {
     private client: LastFmClient;
+    private period: '7day' | '1month' | '3month' | '6month' | '12month';
 
-    constructor(client: LastFmClient) {
+    constructor(
+        client: LastFmClient,
+        period: '7day' | '1month' | '3month' | '6month' | '12month' = '12month'
+    ) {
         this.client = client;
+        this.period = period;
     }
 
     private isCompilation(albumName: string): boolean {
@@ -16,9 +21,7 @@ export class Analyzer {
             lower.includes('singles collection') ||
             lower.includes('anthology') ||
             lower.includes('essential') ||
-            lower.includes('remastered') // Sometimes remasters are treated as separate albums, but maybe we want them? Let's exclude "remastered" if it's explicitly in the title to avoid dupes, but usually it's fine. 
-            // Actually, "Deleted" is common in Last.fm for merged entries, but let's stick to compilations.
-            // Let's keep it simple for now.
+            lower.includes('remastered')
         );
     }
 
@@ -26,12 +29,12 @@ export class Analyzer {
         return str.toLowerCase().replace(/[^a-z0-9]/g, '');
     }
 
-    async getForgottenAlbum(): Promise<NormalizedAlbum | null> {
-        console.log('Fetching top albums (overall)...');
+    async getForgottenAlbum(genre?: string): Promise<NormalizedAlbum | null> {
+        // Fetching top albums (overall)
         const overallTop = await this.client.getTopAlbums('overall', 200);
 
-        console.log('Fetching recent top albums (last 12 months)...');
-        const recentTop = await this.client.getTopAlbums('12month', 200);
+        // Fetching recent top albums
+        const recentTop = await this.client.getTopAlbums(this.period, 200);
 
         // Create a set of "key" strings for recent albums to easily filter them out
         const recentKeys = new Set(
@@ -39,7 +42,7 @@ export class Analyzer {
         );
 
         // Filter overall list
-        const candidates = overallTop.filter((album) => {
+        let candidates = overallTop.filter((album) => {
             // 1. Must not be in recent list
             const key = `${this.cleanString(album.artist)}:${this.cleanString(album.name)}`;
             if (recentKeys.has(key)) return false;
@@ -57,19 +60,37 @@ export class Analyzer {
             return null;
         }
 
-        // Sort by playcount descending (it should already be sort of sorted, but ensure it)
+        // Sort by playcount descending
         candidates.sort((a, b) => b.playcount - a.playcount);
 
+        // If genre is specified, we need to filter further.
+        // fetching tags for ALL candidates is expensive.
+        // Strategy: Take top 50, fetch tags for them, filter, then pick from remaining.
+        const poolSize = genre ? 50 : 20;
+        let topN = candidates.slice(0, poolSize);
+
+        if (genre) {
+            const targetGenre = genre.toLowerCase();
+            const filteredCandidates: NormalizedAlbum[] = [];
+
+            for (const candidate of topN) {
+                const tags = await this.client.getAlbumTags(candidate.artist, candidate.name);
+                if (tags.some(tag => tag.includes(targetGenre))) {
+                    filteredCandidates.push(candidate);
+                }
+            }
+            topN = filteredCandidates;
+        }
+
+        if (topN.length === 0) return null;
+
         // Dynamic selection:
-        // Take the top 20 candidates.
-        // Randomly pick one.
-        // This ensures high quality (high play counts) but variation (not always the same #1).
-        const topN = candidates.slice(0, 20);
+        // Randomly pick one from the filtered pool.
         const selected = topN[Math.floor(Math.random() * topN.length)];
 
         // Fetch Last Played Date
-        console.log(`Fetching last played date for: ${selected.artist} - ${selected.name}`);
         const lastPlayed = await this.client.findLastPlayed(selected.artist, selected.name);
+
         if (lastPlayed) {
             selected.lastPlayed = lastPlayed;
         }

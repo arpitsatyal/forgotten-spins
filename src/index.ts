@@ -9,6 +9,15 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const apiKey = process.env.LASTFM_API_KEY;
 const username = process.env.LASTFM_USERNAME;
+const periodEnv = process.env.FORGOTTEN_PERIOD || '12month';
+
+const validPeriods = ['7day', '1month', '3month', '6month', '12month'];
+if (!validPeriods.includes(periodEnv)) {
+    console.error(`Error: Invalid FORGOTTEN_PERIOD '${periodEnv}'. Must be one of: ${validPeriods.join(', ')}`);
+    process.exit(1);
+}
+
+const period = periodEnv as '7day' | '1month' | '3month' | '6month' | '12month';
 
 if (!apiKey || !username) {
     console.error('Error: LASTFM_API_KEY and LASTFM_USERNAME must be set in .env file.');
@@ -18,9 +27,12 @@ if (!apiKey || !username) {
 async function main() {
     try {
         const client = new LastFmClient(apiKey!, username!);
-        const analyzer = new Analyzer(client);
+        // Pass both the API fetching period AND the custom cutoff date (if any)
+        const analyzer = new Analyzer(client, period);
 
         console.log(`Analyzing listening history for user: ${username}...`);
+        console.log(`Looking for albums not played in the last ${period}...`);
+
         const recommendation = await analyzer.getForgottenAlbum();
 
         if (recommendation) {
