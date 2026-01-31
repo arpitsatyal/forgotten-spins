@@ -16,8 +16,8 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Expose port (optional, but good practice for keep-alive)
-EXPOSE 3000
+# Expose port (Hugging Face default)
+EXPOSE 7860
 
 # Start the bot
 CMD [ "npm", "run", "start:bot" ]
