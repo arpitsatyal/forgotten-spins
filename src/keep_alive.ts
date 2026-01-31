@@ -1,4 +1,7 @@
 import http from 'http';
+import dns from 'node:dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 export function keepAlive() {
     const server = http.createServer((req, res) => {

@@ -1,23 +1,25 @@
-# Use Node.js LTS (Full version to avoid DNS/Network issues on HF)
 FROM node:18
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Install app dependencies
-COPY package*.json ./
+# Give ownership to user 1000 (Hugging Face default user)
+RUN chown -R 1000:1000 /app
 
-# Install dependencies (including devDependencies to build TS)
+COPY --chown=1000 package*.json ./
+
 RUN npm install
 
-# Bundle app source
-COPY . .
+COPY --chown=1000 . .
 
-# Build TypeScript
 RUN npm run build
 
-# Expose port (Hugging Face default)
+# Essential for HF: Use the non-root user
+USER 1000
+
+# Set environment variable to ensure Node handles DNS correctly
+ENV NODE_OPTIONS="--dns-result-order=ipv4first"
+
 EXPOSE 7860
 
-# Start the bot
 CMD [ "npm", "run", "start:bot" ]
