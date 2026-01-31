@@ -2,6 +2,7 @@ import { Client, Events, GatewayIntentBits, Collection } from 'discord.js';
 import dotenv from 'dotenv';
 import path from 'path';
 import * as forgottenCommand from './commands/forgotten';
+import { keepAlive } from './keep_alive';
 
 // Load .env
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -46,3 +47,4 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 client.login(token);
+keepAlive();
