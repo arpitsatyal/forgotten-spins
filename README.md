@@ -1,3 +1,11 @@
+title: Forgotten Spins
+emoji: 🎲
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+
+
 # Forgotten Spins 📀
 
 **Forgotten Spins** is a Discord bot that digs into your Last.fm listening history to resurface albums you used to love but haven't played in a long time. It helps you rediscover your old favorites by filtering out what you've been listening to recently.
