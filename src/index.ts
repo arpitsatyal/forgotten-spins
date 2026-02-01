@@ -5,7 +5,7 @@ import path from 'path';
 import { formatDistanceToNow } from 'date-fns';
 
 // Load .env from project root
-dotenv.config({ path: path.join(__dirname, '../.env') });
+// dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const apiKey = process.env.LASTFM_API_KEY;
 const username = process.env.LASTFM_USERNAME;

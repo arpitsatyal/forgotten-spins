@@ -12,7 +12,8 @@ export function keepAlive() {
 
     const port = process.env.PORT || 7860;
 
-    server.listen(port, () => {
+    // Explicitly bind to 0.0.0.0 to satisfy HF's network bridge
+    server.listen(Number(port), '0.0.0.0', () => {
         console.log(`Keep-alive server is listening on port ${port}`);
     });
 }
