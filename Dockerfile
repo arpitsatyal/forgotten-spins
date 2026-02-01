@@ -22,8 +22,4 @@ ENV NODE_OPTIONS="--dns-result-order=ipv4first"
 
 EXPOSE 7860
 
-# Force the container to use Google's DNS
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-
 CMD [ "npm", "run", "start:bot" ]
