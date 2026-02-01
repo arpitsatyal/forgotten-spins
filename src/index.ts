@@ -1,57 +1,34 @@
+// 1. THIS IS THE KEY: Import process from the node compatibility layer
+import * as process from 'node:process';
+(globalThis as any).process = process;
+
+// 2. NOW keep your current imports
 import { LastFmClient } from './lastfm';
 import { Analyzer } from './analyzer';
 import { formatDistanceToNow } from 'date-fns';
 
-const apiKey = process.env.LASTFM_API_KEY;
-const username = process.env.LASTFM_USERNAME;
-const periodEnv = process.env.FORGOTTEN_PERIOD || '12month';
+export default {
+    async fetch(request, env) {
+        try {
+            // Because we set globalThis.process above, these will now work
+            // even in nested files like lastfm.ts!
+            const apiKey = process.env.LASTFM_API_KEY;
+            const username = process.env.LASTFM_USERNAME;
+            const periodEnv = process.env.FORGOTTEN_PERIOD || '12month';
 
-const validPeriods = ['7day', '1month', '3month', '6month', '12month'];
-if (!validPeriods.includes(periodEnv)) {
-    console.error(`Error: Invalid FORGOTTEN_PERIOD '${periodEnv}'. Must be one of: ${validPeriods.join(', ')}`);
-    process.exit(1);
-}
+            const client = new LastFmClient(apiKey!, username!);
+            const analyzer = new Analyzer(client, periodEnv as any);
 
-const period = periodEnv as '7day' | '1month' | '3month' | '6month' | '12month';
+            console.log(`Analyzing for ${username}...`);
+            const recommendation = await analyzer.getForgottenAlbum();
 
-if (!apiKey || !username) {
-    console.error('Error: LASTFM_API_KEY and LASTFM_USERNAME must be set in .env file.');
-    process.exit(1);
-}
-
-async function main() {
-    try {
-        const client = new LastFmClient(apiKey!, username!);
-        // Pass both the API fetching period AND the custom cutoff date (if any)
-        const analyzer = new Analyzer(client, period);
-
-        console.log(`Analyzing listening history for user: ${username}...`);
-        console.log(`Looking for albums not played in the last ${period}...`);
-
-        const recommendation = await analyzer.getForgottenAlbum();
-
-        if (recommendation) {
-            console.log('\n------------------------------------------------');
-            console.log('🎧 RECOMMENDED FORGOTTEN SPIN 🎧');
-            console.log('------------------------------------------------');
-            console.log(`Album:  ${recommendation.name}`);
-            console.log(`Artist: ${recommendation.artist}`);
-            console.log(`Total Scrobbles: ${recommendation.playcount}`);
-            if (recommendation.lastPlayed) {
-                const timeAgo = formatDistanceToNow(recommendation.lastPlayed, { addSuffix: true });
-                console.log(`Last Played: ${recommendation.lastPlayed.toLocaleDateString()} (${timeAgo})`);
-            } else {
-                console.log('Last Played: Over a year ago (or not found in recent history)');
+            if (recommendation) {
+                return new Response(`Today's Forgotten Spin: ${recommendation.name} by ${recommendation.artist}`);
             }
-            console.log(`URL: ${recommendation.url}`);
-            console.log('------------------------------------------------');
-            console.log('Why? You used to listen to this a lot, but haven\'t played it much in the last year.');
-        } else {
-            console.log('No suitable forgotten albums found. Maybe try listening to more music?');
-        }
-    } catch (error) {
-        console.error('An error occurred:', error);
-    }
-}
+            return new Response("No forgotten spins found today.");
 
-main();
+        } catch (error: any) {
+            return new Response(`Error: ${error.message}`, { status: 500 });
+        }
+    }
+};
