@@ -17,9 +17,6 @@ RUN npm run build
 # Essential for HF: Use the non-root user
 USER 1000
 
-# Set environment variable to ensure Node handles DNS correctly
-ENV NODE_OPTIONS="--dns-result-order=ipv4first"
-
 EXPOSE 7860
 
 CMD [ "npm", "run", "start:bot" ]

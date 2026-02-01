@@ -1,0 +1,8 @@
+{
+    "name": "forgotten-spins", // This should match your worker name in Cloudflare
+    "main": "index.ts", // This tells Wrangler your code is in index.js
+    "compatibility_date": "2026-02-01",
+    "observability": {
+        "enabled": true
+    }
+}

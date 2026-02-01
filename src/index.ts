@@ -1,23 +1,6 @@
-import dotenv from 'dotenv';
 import { LastFmClient } from './lastfm';
 import { Analyzer } from './analyzer';
-import path from 'path';
 import { formatDistanceToNow } from 'date-fns';
-
-// Load .env from project root
-// dotenv.config({ path: path.join(__dirname, '../.env') });
-
-
-import { lookup } from 'node:dns';
-
-lookup('discord.com', (err, address) => {
-    if (err) {
-        console.error('DNS Lookup failed. Error code:', err.code);
-        console.log('Note: If you see EAI_AGAIN, the network is likely restricted by HF.');
-    } else {
-        console.log('DNS Lookup successful! Discord is at:', address);
-    }
-});
 
 const apiKey = process.env.LASTFM_API_KEY;
 const username = process.env.LASTFM_USERNAME;
