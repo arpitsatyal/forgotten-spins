@@ -50,5 +50,8 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-client.login(token);
+client.login(token).catch(error => {
+    console.error('Failed to log in:', error);
+    process.exit(1);
+});
 keepAlive();
