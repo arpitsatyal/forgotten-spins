@@ -8,7 +8,7 @@ import { Analyzer } from './analyzer';
 import { formatDistanceToNow } from 'date-fns';
 
 export default {
-    async fetch(request, env) {
+    async fetch(request: any, env: any) {
         try {
             // Because we set globalThis.process above, these will now work
             // even in nested files like lastfm.ts!
