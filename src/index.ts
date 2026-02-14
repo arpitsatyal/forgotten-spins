@@ -5,7 +5,6 @@ import * as process from 'node:process';
 // 2. NOW keep your current imports
 import { LastFmClient } from './lastfm';
 import { Analyzer } from './analyzer';
-import { formatDistanceToNow } from 'date-fns';
 
 export default {
     async fetch(request: any, env: any) {
