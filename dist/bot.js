@@ -70,23 +70,25 @@ else {
     commands.set(forgottenCommand.data.name, forgottenCommand);
     client.once(discord_js_1.Events.ClientReady, c => {
         console.log(`✅ Ready! Logged in as ${c.user.tag}`);
+        console.log(`✅ Bot is in ${c.guilds.cache.size} server(s)`);
+        console.log('✅ Discord bot is fully operational and ready to receive commands!');
     });
     client.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
         if (!interaction.isChatInputCommand())
             return;
-        console.log(`Received command: ${interaction.commandName}`);
+        console.log(`📥 Received command: ${interaction.commandName} from ${interaction.user.tag}`);
         const command = commands.get(interaction.commandName);
         if (!command) {
-            console.error(`No command matching ${interaction.commandName} was found.`);
+            console.error(`❌ No command matching ${interaction.commandName} was found.`);
             return;
         }
         try {
-            console.log(`Executing command: ${interaction.commandName}`);
+            console.log(`⚙️ Executing command: ${interaction.commandName}`);
             await command.execute(interaction);
-            console.log(`Command ${interaction.commandName} executed successfully.`);
+            console.log(`✅ Command ${interaction.commandName} executed successfully.`);
         }
         catch (error) {
-            console.error(`Error executing ${interaction.commandName}:`, error);
+            console.error(`❌ Error executing ${interaction.commandName}:`, error);
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
             }
@@ -99,12 +101,37 @@ else {
     console.log('🚀 Starting keep-alive server...');
     (0, keep_alive_1.keepAlive)();
     console.log('🔐 Attempting to log in to Discord...');
-    client.login(token).catch(error => {
+    // Set a timeout to check if login succeeds
+    let loginSuccessful = false;
+    setTimeout(() => {
+        if (!loginSuccessful) {
+            console.error('⚠️ WARNING: Discord login did not complete within 30 seconds!');
+            console.error('⚠️ This usually means:');
+            console.error('   1. Invalid DISCORD_TOKEN - Check your token in Render environment variables');
+            console.error('   2. Network issues - Discord API might be unreachable');
+            console.error('   3. Token was regenerated - Get a new token from Discord Developer Portal');
+            console.error('⚠️ The bot will NOT respond to commands until login succeeds!');
+        }
+    }, 30000);
+    client.login(token)
+        .then(() => {
+        loginSuccessful = true;
+        console.log('✅ Login request sent successfully, waiting for ready event...');
+    })
+        .catch(error => {
         console.error('❌ Failed to log in to Discord:', error);
+        console.error('❌ Error details:', error.message);
         console.error('This usually means:');
-        console.error('1. Invalid DISCORD_TOKEN');
-        console.error('2. Network connectivity issues');
-        console.error('3. Discord API is down');
+        console.error('1. Invalid DISCORD_TOKEN - The token format is wrong or expired');
+        console.error('2. Network connectivity issues - Cannot reach Discord API');
+        console.error('3. Discord API is down - Check https://discordstatus.com');
+        console.error('');
+        console.error('🔧 To fix:');
+        console.error('   1. Go to https://discord.com/developers/applications');
+        console.error('   2. Select your application');
+        console.error('   3. Go to Bot section');
+        console.error('   4. Click "Reset Token" to get a new token');
+        console.error('   5. Update DISCORD_TOKEN in Render environment variables');
         // Don't exit - keep the keep-alive server running
     });
 }
