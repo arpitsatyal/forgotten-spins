@@ -50,8 +50,10 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
+// Start keep-alive server FIRST to satisfy Render health check immediately
+keepAlive();
+
 client.login(token).catch(error => {
     console.error('Failed to log in:', error);
     process.exit(1);
 });
-keepAlive();
