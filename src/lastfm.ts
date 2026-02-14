@@ -61,6 +61,7 @@ export class LastFmClient {
             const response = await this.fetch<any>('user.getartisttracks', {
                 artist,
                 limit: 200,
+                autocorrect: 1
             });
 
             // Note: The structure might be slightly different depending on the endpoint.
