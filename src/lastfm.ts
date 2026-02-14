@@ -68,11 +68,13 @@ export class LastFmClient {
             const tracks = response.artisttracks?.track;
             if (!tracks || !Array.isArray(tracks)) return null;
 
-            const targetAlbum = albumName.toLowerCase();
+            // Helper to clean strings for comparison
+            const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const targetAlbum = normalize(albumName);
 
             for (const track of tracks) {
                 if (track.album && track.date) {
-                    const trackAlbumName = (track.album['#text'] || track.album.name || '').toLowerCase();
+                    const trackAlbumName = normalize(track.album['#text'] || track.album.name || '');
                     if (trackAlbumName === targetAlbum) {
                         const uts = parseInt(track.date.uts, 10);
                         return new Date(uts * 1000);
