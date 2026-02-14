@@ -17,5 +17,5 @@ RUN npm run build
 # Expose port
 EXPOSE 3000
 
-# Start the bot
-CMD [ "npm", "run", "start:bot" ]
+# Start the bot (Running compiled JS is lighter/faster than ts-node)
+CMD [ "npm", "run", "start:prod" ]
