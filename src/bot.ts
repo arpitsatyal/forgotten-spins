@@ -88,6 +88,7 @@ if (!token) {
         }
     }, 30000);
 
+    console.log('token', token)
     client.login(token)
         .then(() => {
             loginSuccessful = true;
