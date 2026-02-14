@@ -1,22 +1,21 @@
 FROM node:18
 
 # Create app directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Give ownership to user 1000 (Hugging Face default user)
-RUN chown -R 1000:1000 /app
-
-COPY --chown=1000 package*.json ./
+# Install app dependencies
+COPY package*.json ./
 
 RUN npm install
 
-COPY --chown=1000 . .
+# Bundle app source
+COPY . .
 
+# Build TypeScript
 RUN npm run build
 
-# Essential for HF: Use the non-root user
-USER 1000
+# Expose port
+EXPOSE 3000
 
-EXPOSE 7860
-
+# Start the bot
 CMD [ "npm", "run", "start:bot" ]

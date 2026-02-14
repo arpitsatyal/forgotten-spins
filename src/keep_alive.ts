@@ -8,7 +8,7 @@ export function keepAlive() {
         res.end();
     });
 
-    const port = process.env.PORT || 7860;
+    const port = process.env.PORT || 3000;
 
     server.listen(Number(port), () => {
         console.log(`Keep-alive server is listening on port ${port}`);
