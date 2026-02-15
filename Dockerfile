@@ -1,21 +1,21 @@
-FROM node:18
+FROM oven/bun:1
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY package*.json ./
+COPY package.json bun.lockb* ./
 
-RUN npm install
+RUN bun install
 
 # Bundle app source
 COPY . .
 
 # Build TypeScript
-RUN npm run build
+RUN bun run build
 
 # Expose port
 EXPOSE 3000
 
-# Start the bot (Run node directly to avoid npm signal swallowing)
-CMD [ "node", "dist/bot.js" ]
+# Start the bot
+CMD [ "bun", "run", "start:prod" ]
